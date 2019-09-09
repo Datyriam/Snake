@@ -16,7 +16,7 @@ using System.Xml.Serialization;
 namespace Snek
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for SnakeWPF.xaml
     /// </summary>
     public partial class SnakeWPF : Window, INotifyPropertyChanged
     {
@@ -30,6 +30,7 @@ namespace Snek
 
         private void GameTickTimer_Tick(object sender, EventArgs e)
         {
+            snakeDir = tempSnakeDir;
             MoveSnake();
         }
 
@@ -40,7 +41,6 @@ namespace Snek
         const int SnakeSpeedTreshold = 100;
         const int MaxHighscoreListEntryCount = 5;
         public bool DeathByWalls { get; set; } = false;
-        private bool hasMoved = true;
 
         private readonly Random rnd = new Random();
         private UIElement snakeFood = null;
@@ -52,17 +52,41 @@ namespace Snek
 
         public enum SnakeDirection { Left, Right, Up, Down };
         private SnakeDirection snakeDir = SnakeDirection.Right;
+        private SnakeDirection tempSnakeDir = SnakeDirection.Right;
         private int snakeLength;
 
         private string _score = "Loading...";
-        public string ScoreDisplay { get { return _score; } set { if (_score != value) { _score = value; OnPropertyChanged(nameof(ScoreDisplay)); } } }
+        public string ScoreDisplay
+        {
+            get { return _score; }
+            set { if (_score != value) { _score = value; OnPropertyChanged(nameof(ScoreDisplay)); } }
+        }
         private int _currentScore;
-        public int CurrentScore { get { return _currentScore; } set { if (_currentScore != value) { _currentScore = value; ScoreDisplay = "Score: " + value.ToString(); } } }
+        public int CurrentScore
+        {
+            get { return _currentScore; }
+            set { if (_currentScore != value) { _currentScore = value; ScoreDisplay = "Score: " + value.ToString(); } }
+        }
 
         private string _speed = "Loading...";
-        public string SpeedDisplay { get { return _speed; } set { if (_speed != value) { _speed = value; OnPropertyChanged(nameof(SpeedDisplay)); } } }
-        public double CurrentSpeed { get { return gameTickTimer.Interval.TotalMilliseconds; } set { if (gameTickTimer.Interval.TotalMilliseconds != value) { gameTickTimer.Interval = TimeSpan.FromMilliseconds(value); SpeedDisplay = "Speed: " + gameTickTimer.Interval.TotalMilliseconds.ToString(); } } }
-        
+        public string SpeedDisplay
+        {
+            get { return _speed; }
+            set { if (_speed != value) { _speed = value; OnPropertyChanged(nameof(SpeedDisplay)); } }
+        }
+        public double CurrentSpeed
+        {
+            get { return gameTickTimer.Interval.TotalMilliseconds; }
+            set
+            {
+                if (gameTickTimer.Interval.TotalMilliseconds != value)
+                {
+                    gameTickTimer.Interval = TimeSpan.FromMilliseconds(value);
+                    SpeedDisplay = "Speed: " + gameTickTimer.Interval.TotalMilliseconds.ToString();
+                }
+            }
+        }
+
         private readonly System.Windows.Threading.DispatcherTimer gameTickTimer = new System.Windows.Threading.DispatcherTimer();
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -184,8 +208,6 @@ namespace Snek
             });
             DrawSnake();
             DoCollisionCheck();
-            gameTickTimer.Interval = TimeSpan.FromMilliseconds(gameTickTimer.Interval.TotalMilliseconds);
-            hasMoved = true;
         }
 
         private void StartNewGame()
@@ -254,19 +276,17 @@ namespace Snek
 
         private void Window_KeyUp(object sender, KeyEventArgs e)
         {
-            if (!hasMoved && e.Key != Key.Space && bdrNewHighscore.Visibility != Visibility.Visible ) return;
+            if (bdrNewHighscore.Visibility == Visibility.Visible) return;
 
             SnakeDirection origDir = snakeDir;
             switch (e.Key)
             {
-                case Key.Up: if (snakeDir != SnakeDirection.Down) snakeDir = SnakeDirection.Up; break;
-                case Key.Down: if (snakeDir != SnakeDirection.Up) snakeDir = SnakeDirection.Down; break;
-                case Key.Left: if (snakeDir != SnakeDirection.Right) snakeDir = SnakeDirection.Left; break;
-                case Key.Right: if (snakeDir != SnakeDirection.Left) snakeDir = SnakeDirection.Right; break;
+                case Key.Up: if (snakeDir != SnakeDirection.Down) tempSnakeDir = SnakeDirection.Up; break;
+                case Key.Down: if (snakeDir != SnakeDirection.Up) tempSnakeDir = SnakeDirection.Down; break;
+                case Key.Left: if (snakeDir != SnakeDirection.Right) tempSnakeDir = SnakeDirection.Left; break;
+                case Key.Right: if (snakeDir != SnakeDirection.Left) tempSnakeDir = SnakeDirection.Right; break;
                 case Key.Space: StartNewGame(); break;
             }
-            hasMoved = false;
-            if (snakeDir != origDir) MoveSnake();
         }
 
         private void DoCollisionCheck()
@@ -327,7 +347,7 @@ namespace Snek
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if(e.LeftButton == MouseButtonState.Pressed) this.DragMove();
+            if (e.LeftButton == MouseButtonState.Pressed) this.DragMove();
         }
 
         private void BtnClose_Click(object sender, RoutedEventArgs e)
