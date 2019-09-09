@@ -85,8 +85,8 @@
                 </Border>
                 <Border BorderBrush="Silver" BorderThickness="2" Width="300" Height="300" Canvas.Left="50" Canvas.Top="50" Name="bdrEndOfGame" Panel.ZIndex="1" Visibility="Collapsed">
                     <StackPanel Orientation="Vertical" Background="AliceBlue">
-                        <TextBlock HorizontalAlignment="Center" FontSize="40" FontWeight="Bold" Margin="0,20,0,0">You seem to have met</TextBlock>
-                        <TextBlock HorizontalAlignment="Center" FontSize="26" FontWeight="Bold">with an unfortunate end.</TextBlock>
+                        <TextBlock HorizontalAlignment="Center" FontSize="20" FontWeight="Bold" Margin="0,20,0,0">You seem to have met</TextBlock>
+                        <TextBlock HorizontalAlignment="Center" FontSize="18" FontWeight="Bold">with an unfortunate end.</TextBlock>
                         <TextBlock Margin="20" TextAlignment="Center" FontSize="16">Your score:</TextBlock>
                         <TextBlock Name="tbFinalScore" TextAlignment="Center" FontSize="48" FontWeight="Bold" Foreground="Maroon">0</TextBlock>
                         <TextBlock TextAlignment="Center" FontSize="16" Margin="20">Press SPACE to be reborn.</TextBlock>

@@ -39,6 +39,7 @@ namespace Snek
             MoveSnake();
         }
 
+        #region Properties
         const int SnakeSquareSize = 20;
         const int SnakeStartLength = 3;
         const int SnakeStartSpeed = 400;
@@ -67,10 +68,12 @@ namespace Snek
         private string _speed = "Loading...";
         public string SpeedDisplay { get { return _speed; } set { if (_speed != value) { _speed = value; OnPropertyChanged(nameof(SpeedDisplay)); } } }
         public double CurrentSpeed { get { return gameTickTimer.Interval.TotalMilliseconds; } set { if (gameTickTimer.Interval.TotalMilliseconds != value) { gameTickTimer.Interval = TimeSpan.FromMilliseconds(value); SpeedDisplay = "Speed: " + gameTickTimer.Interval.TotalMilliseconds.ToString(); } } }
-
+        
         private readonly System.Windows.Threading.DispatcherTimer gameTickTimer = new System.Windows.Threading.DispatcherTimer();
 
         public event PropertyChangedEventHandler PropertyChanged;
+        #endregion
+
         protected void OnPropertyChanged([CallerMemberName] string propName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
@@ -118,6 +121,7 @@ namespace Snek
                 }
             }
         }
+
         private void DrawSnake()
         {
             foreach (SnakePart snkpart in snakeParts)
@@ -136,6 +140,7 @@ namespace Snek
                 }
             }
         }
+
         private void MoveSnake()
         {
             while (snakeParts.Count >= snakeLength)
@@ -185,8 +190,10 @@ namespace Snek
             });
             DrawSnake();
             DoCollisionCheck();
+            gameTickTimer.Interval = TimeSpan.FromMilliseconds(gameTickTimer.Interval.TotalMilliseconds);
             hasMoved = true;
         }
+
         private void StartNewGame()
         {
             //init
@@ -218,6 +225,7 @@ namespace Snek
             DrawSnakeFood();
             gameTickTimer.IsEnabled = true;
         }
+
         private Point GetNextFoodPosition()
         {
             int maxX = (int)(GameArea.ActualWidth / SnakeSquareSize);
@@ -235,6 +243,7 @@ namespace Snek
 
             return new Point(foodX, foodY);
         }
+
         private void DrawSnakeFood()
         {
             Point foodPos = GetNextFoodPosition();
@@ -248,9 +257,10 @@ namespace Snek
             Canvas.SetTop(snakeFood, foodPos.Y);
             Canvas.SetLeft(snakeFood, foodPos.X);
         }
+
         private void Window_KeyUp(object sender, KeyEventArgs e)
         {
-            if (!hasMoved) return;
+            if (!hasMoved && e.Key != Key.Space && bdrNewHighscore.Visibility != Visibility.Visible ) return;
 
             SnakeDirection origDir = snakeDir;
             switch (e.Key)
@@ -262,8 +272,9 @@ namespace Snek
                 case Key.Space: StartNewGame(); break;
             }
             hasMoved = false;
-            //if (snakeDir != origDir) MoveSnake();
+            if (snakeDir != origDir) MoveSnake();
         }
+
         private void DoCollisionCheck()
         {
             SnakePart snakeHead = snakeParts[snakeParts.Count - 1];
@@ -288,6 +299,7 @@ namespace Snek
                 }
             }
         }
+
         private void EatSnakeFood()
         {
             snakeLength++;
@@ -296,8 +308,8 @@ namespace Snek
             CurrentSpeed = timerInterval;
             GameArea.Children.Remove(snakeFood);
             DrawSnakeFood();
-            //UpdateGameStatus();
         }
+
         private void EndGame()
         {
             bool isNewHighscore = false;
@@ -317,12 +329,11 @@ namespace Snek
                 bdrEndOfGame.Visibility = Visibility.Visible;
             }
             gameTickTimer.IsEnabled = false;
-            //MessageBox.Show("You seem to have met an unfortunate end.\n\nTo be reborn, simply press Space.","Snake? Snaaaaaaaaaake!");
         }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            this.DragMove();
+            if(e.LeftButton == MouseButtonState.Pressed) this.DragMove();
         }
 
         private void BtnClose_Click(object sender, RoutedEventArgs e)
@@ -382,9 +393,5 @@ namespace Snek
             bdrNewHighscore.Visibility = Visibility.Collapsed;
             bdrHighscoreList.Visibility = Visibility.Visible;
         }
-        //private void UpdateGameStatus()
-        //{
-        //    throw new NotImplementedException();
-        //}
     }
 }
